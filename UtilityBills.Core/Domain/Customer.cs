@@ -4,6 +4,8 @@ namespace UtilityBills.Core.Domain;
 public sealed class Customer
 {
     public int Id { get; init; }
+
     public string Name { get; init; } = string.Empty;
+
     public bool HasSubsidy { get; init; }
 }
