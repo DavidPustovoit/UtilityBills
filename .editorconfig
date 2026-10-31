@@ -36,7 +36,7 @@ dotnet_diagnostic.SA1200.severity = none
 dotnet_diagnostic.SA1309.severity = none
 # XML-документація не потрібна
 dotnet_diagnostic.SA0001.severity = none
-dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1600.severity = warning
 dotnet_diagnostic.SA1601.severity = none
 dotnet_diagnostic.SA1602.severity = none
 dotnet_diagnostic.SA1611.severity = none
@@ -50,3 +50,8 @@ dotnet_diagnostic.SA1201.severity = warning
 dotnet_diagnostic.SA1503.severity = warning
 dotnet_diagnostic.SA1516.severity = warning
 dotnet_diagnostic.IDE0055.severity = warning
+# Документація українською мовою, а не англійською
+dotnet_diagnostic.SA1623.severity = none
+dotnet_diagnostic.SA1642.severity = none
+# Проблема культури в Parse/ToString йде в технічний борг
+dotnet_diagnostic.CA1305.severity = none
