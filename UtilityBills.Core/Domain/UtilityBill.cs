@@ -8,6 +8,45 @@ namespace UtilityBills.Core.Domain;
 /// </summary>
 public class UtilityBill
 {
+    /// <summary>Ставка податку на додану вартість.</summary>
+    private const decimal VatRate = 0.2m;
+    
+    /// <summary>Поріг суми для базової субсидії.</summary>
+    private const decimal SubsidyDiscountThreshold = 1000m;
+    
+    /// <summary>Частка знижки за базовою субсидією.</summary>
+    private const decimal SubsidyDiscountRate = 0.10m;
+    
+    /// <summary>Поріг суми для підвищеної субсидії.</summary>
+    private const decimal LargeConsumptionThreshold = 5000m;
+    
+    /// <summary>Частка знижки за підвищеною субсидією.</summary>
+    private const decimal LargeConsumptionDiscountRate = 0.15m;
+    
+    /// <summary>Кількість послуг, з якої діє знижка за комплексність.</summary>
+    private const int BulkLineCount = 10;
+    
+    /// <summary>Сума знижки за комплексність, грн.</summary>
+    private const decimal BulkDiscountAmount = 100m;
+    
+    /// <summary>Максимальна кількість позицій у рахунку.</summary>
+    private const int MaxLineCount = 100;
+    
+    /// <summary>Мінімальна довжина імені абонента.</summary>
+    private const int MinCustomerNameLength = 2;
+
+    /// <summary>Стан: новий.</summary>
+    private const int StatusNew = 0;
+    
+    /// <summary>Стан: оплачений.</summary>
+    private const int StatusPaid = 1;
+    
+    /// <summary>Стан: відправлений.</summary>
+    private const int StatusSent = 2;
+    
+    /// <summary>Стан: скасований.</summary>
+    private const int StatusCancelled = 3;
+
     private readonly List<string[]> _lines = new List<string[]>();
 
     /// <summary>
@@ -29,7 +68,7 @@ public class UtilityBill
     public string CustomerName { get; private set; }
 
     /// <summary>Отримує поточний стан рахунку.</summary>
-    public int Status { get; private set; } = 0;
+    public int Status { get; private set; } = StatusNew;
 
     /// <summary>Отримує дату створення рахунку.</summary>
     public DateTime CreatedAt { get; private set; }
@@ -40,7 +79,7 @@ public class UtilityBill
     /// <param name="bills">Список рахунків.</param>
     /// <param name="id">Ідентифікатор для пошуку.</param>
     /// <returns>Знайдений рахунок або null, якщо не знайдено.</returns>
-    public static UtilityBill FindById(List<UtilityBill> bills, string id)
+    public static UtilityBill? FindById(List<UtilityBill> bills, string id)
     {
         for (int i = 0; i < bills.Count; i++)
         {
@@ -86,22 +125,18 @@ public class UtilityBill
             lineCount = lineCount + 1;
         }
 
-        if (hasSubsidy && total > 1000)
+        if (hasSubsidy && total > SubsidyDiscountThreshold)
         {
-            total = total * 0.9m;
+            total = total * (1m - SubsidyDiscountRate);
         }
-        else if (total > 5000)
+        else if (total > LargeConsumptionThreshold)
         {
-            total = total * 0.85m;
-        }
-        else
-        {
-            total = total;
+            total = total * (1m - LargeConsumptionDiscountRate);
         }
 
-        if (lineCount > 10)
+        if (lineCount > BulkLineCount)
         {
-            total = total - 100;
+            total = total - BulkDiscountAmount;
         }
 
         if (total < 0)
@@ -110,7 +145,7 @@ public class UtilityBill
         }
 
         // ПДВ нараховується на суму вже після всіх знижок
-        total = total + (total * 0.2m);
+        total = total + (total * VatRate);
 
         return Math.Round(total, 2);
     }
@@ -122,21 +157,21 @@ public class UtilityBill
     /// <returns>true, якщо стан змінено; false, якщо перехід заборонений.</returns>
     public bool TryChangeStatus(int newStatus)
     {
-        if (Status == 0 && newStatus == 1)
+        if (Status == StatusNew && newStatus == StatusPaid)
         {
-            Status = 1;
+            Status = StatusPaid;
             return true;
         }
 
-        if (Status == 1 && newStatus == 2)
+        if (Status == StatusPaid && newStatus == StatusSent)
         {
-            Status = 2;
+            Status = StatusSent;
             return true;
         }
 
-        if (Status == 0 && newStatus == 3)
+        if (Status == StatusNew && newStatus == StatusCancelled)
         {
-            Status = 3;
+            Status = StatusCancelled;
             return true;
         }
 
@@ -150,9 +185,9 @@ public class UtilityBill
     public bool IsValid()
     {
         if (Id != null && Id != string.Empty
-            && CustomerName != null && CustomerName.Length > 2
-            && _lines.Count > 0 && _lines.Count < 100
-            && Status >= 0 && Status <= 3)
+            && CustomerName != null && CustomerName.Length > MinCustomerNameLength
+            && _lines.Count > 0 && _lines.Count < MaxLineCount
+            && Status >= StatusNew && Status <= StatusCancelled)
         {
             return true;
         }
