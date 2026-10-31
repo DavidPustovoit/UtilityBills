@@ -1,4 +1,10 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Var14.Core/Var14.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Var14.Tests/Var14.Tests.csproj" />
+  </Folder>
   <Project Path="UtilityBills.App/UtilityBills.App.csproj" />
   <Project Path="UtilityBills.Core/UtilityBills.Core.csproj" />
 </Solution>
