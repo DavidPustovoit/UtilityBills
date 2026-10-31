@@ -1,29 +1,45 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace UtilityBills.Core.Domain;
 
+/// <summary>
+/// Рахунок за комунальні послуги абонента.
+/// </summary>
 public class UtilityBill
 {
     private readonly List<string[]> _lines = new List<string[]>();
 
+    /// <summary>
+    /// Ініціалізує новий екземпляр рахунку.
+    /// </summary>
+    /// <param name="id">Ідентифікатор рахунку.</param>
+    /// <param name="customerName">Ім'я абонента.</param>
     public UtilityBill(string id, string customerName)
     {
-        Id = id; // ставимо id
-        CustomerName = customerName; // ставимо ab
-        CreatedAt = DateTime.Now; // ставимо дату
+        Id = id;
+        CustomerName = customerName;
+        CreatedAt = DateTime.Now;
     }
 
+    /// <summary>Отримує ідентифікатор рахунку.</summary>
     public string Id { get; private set; }
 
+    /// <summary>Отримує ім'я абонента.</summary>
     public string CustomerName { get; private set; }
 
-    public int Status { get; private set; } = 0; // 0-новий,1-оплач,2-відпр,3-скасов
+    /// <summary>Отримує поточний стан рахунку.</summary>
+    public int Status { get; private set; } = 0;
 
+    /// <summary>Отримує дату створення рахунку.</summary>
     public DateTime CreatedAt { get; private set; }
-    // public string prim; // примітка, поки не треба
 
+    /// <summary>
+    /// Шукає рахунок за ідентифікатором у списку.
+    /// </summary>
+    /// <param name="bills">Список рахунків.</param>
+    /// <param name="id">Ідентифікатор для пошуку.</param>
+    /// <returns>Знайдений рахунок або null, якщо не знайдено.</returns>
     public static UtilityBill FindById(List<UtilityBill> bills, string id)
     {
         for (int i = 0; i < bills.Count; i++)
@@ -37,15 +53,26 @@ public class UtilityBill
         return null;
     }
 
+    /// <summary>
+    /// Додає до рахунку нову позицію (послугу).
+    /// </summary>
+    /// <param name="serviceCode">Код послуги.</param>
+    /// <param name="volume">Обсяг споживання.</param>
+    /// <param name="tariff">Тариф за одиницю.</param>
     public void AddLine(string serviceCode, int volume, decimal tariff)
     {
         string[] line = new string[3];
         line[0] = serviceCode;
         line[1] = volume.ToString();
         line[2] = tariff.ToString();
-        _lines.Add(line); // додаємо t у ln
+        _lines.Add(line);
     }
 
+    /// <summary>
+    /// Обчислює загальну суму рахунку з урахуванням субсидій та податків.
+    /// </summary>
+    /// <param name="hasSubsidy">Ознака наявності субсидії.</param>
+    /// <returns>Загальна сума до сплати.</returns>
     public decimal CalculateTotal(bool hasSubsidy)
     {
         decimal total = 0;
@@ -55,11 +82,10 @@ public class UtilityBill
         {
             int volume = int.Parse(_lines[i][1]);
             decimal tariff = decimal.Parse(_lines[i][2]);
-            total = total + (volume * tariff); // додаємо до суми
-            lineCount = lineCount + 1; // збільшуємо kolvo на одиницю
+            total = total + (volume * tariff);
+            lineCount = lineCount + 1;
         }
 
-        // if (total > 500) { total = total - 50; } // стара знижка
         if (hasSubsidy && total > 1000)
         {
             total = total * 0.9m;
@@ -83,11 +109,17 @@ public class UtilityBill
             total = 0;
         }
 
+        // ПДВ нараховується на суму вже після всіх знижок
         total = total + (total * 0.2m);
 
-        return Math.Round(total, 2); // повертаємо sum1
+        return Math.Round(total, 2);
     }
 
+    /// <summary>
+    /// Змінює стан рахунку, якщо перехід дозволений.
+    /// </summary>
+    /// <param name="newStatus">Цільовий стан рахунку.</param>
+    /// <returns>true, якщо стан змінено; false, якщо перехід заборонений.</returns>
     public bool TryChangeStatus(int newStatus)
     {
         if (Status == 0 && newStatus == 1)
@@ -108,9 +140,13 @@ public class UtilityBill
             return true;
         }
 
-        return false; // не можна
+        return false;
     }
 
+    /// <summary>
+    /// Перевіряє рахунок на валідність.
+    /// </summary>
+    /// <returns>true, якщо рахунок дійсний; інакше false.</returns>
     public bool IsValid()
     {
         if (Id != null && Id != string.Empty
@@ -126,6 +162,10 @@ public class UtilityBill
         }
     }
 
+    /// <summary>
+    /// Формує текстовий звіт за рахунком.
+    /// </summary>
+    /// <returns>Рядок зі звітом.</returns>
     public string BuildReport()
     {
         string report = string.Empty;
@@ -140,6 +180,6 @@ public class UtilityBill
 
         report = report + "Разом: " + CalculateTotal(false) + "\n";
 
-        return report; // повертаємо s
+        return report;
     }
 }
