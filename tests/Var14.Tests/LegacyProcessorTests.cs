@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
+using Var14.Core;
 using Var14.Core.Legacy;
 using Xunit;
-using Var14.Core;
 
 namespace Var14.Tests;
 
 public class LegacyProcessorTests
 {
     [Fact]
-    public void Process_RegularClient_Returns1292()
+    public void ProcessRegularClientReturns1292()
     {
         List<Indicator> indicators = new()
         {
@@ -27,7 +27,7 @@ public class LegacyProcessorTests
     }
 
     [Fact]
-    public void Process_SmallOrder_AddsDelivery()
+    public void ProcessSmallOrderAddsDelivery()
     {
         List<Indicator> indicators = new()
         {
@@ -44,7 +44,7 @@ public class LegacyProcessorTests
     }
 
     [Fact]
-    public void Process_NoLines_ReturnsMinusOne()
+    public void ProcessNoLinesReturnsMinusOne()
     {
         decimal total = BillProcessor.Process(
             3, "Коваль", "k@ex.com", false,

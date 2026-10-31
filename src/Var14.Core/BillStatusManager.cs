@@ -8,9 +8,13 @@ public static class BillStatusManager
         decimal total = currentTotal;
 
         if (currentStatus == "New" && total > 0)
+        {
             newStatus = "Paid";
+        }
         else if (currentStatus == "Paid")
+        {
             newStatus = "Shipped";
+        }
         else if (currentStatus == "Cancelled")
         {
             newStatus = "Cancelled";

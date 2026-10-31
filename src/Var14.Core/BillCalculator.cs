@@ -12,22 +12,51 @@ public static class BillCalculator
         foreach (var ind in indicators)
         {
             decimal sum = ind.Volume * ind.Tariff;
-            if (ind.Volume >= 10) sum *= 0.95m;
+            if (ind.Volume >= 10)
+            {
+                sum *= 0.95m;
+            }
+
             total += sum;
         }
 
-        if (isRegular) total *= 0.93m;
+        if (isRegular)
+        {
+            total *= 0.93m;
+        }
 
-        if (total > 5000) total *= 0.9m;
-        else if (total > 2000) total *= 0.95m;
+        if (total > 5000)
+        {
+            total *= 0.9m;
+        }
+        else if (total > 2000)
+        {
+            total *= 0.95m;
+        }
 
-        if (couponCode == "SALE10") total -= total * 0.1m;
-        else if (couponCode == "MINUS200" && total > 1000) total -= 200m;
+        if (couponCode == "SALE10")
+        {
+            total -= total * 0.1m;
+        }
+        else if (couponCode == "MINUS200" && total > 1000)
+        {
+            total -= 200m;
+        }
 
-        if (createdAt.DayOfWeek == DayOfWeek.Sunday) total *= 0.98m;
+        if (createdAt.DayOfWeek == DayOfWeek.Sunday)
+        {
+            total *= 0.98m;
+        }
 
-        if (total < 1000) total += serviceFee;
-        if (total < 0) total = 0;
+        if (total < 1000)
+        {
+            total += serviceFee;
+        }
+
+        if (total < 0)
+        {
+            total = 0;
+        }
 
         return Math.Round(total, 2);
     }
