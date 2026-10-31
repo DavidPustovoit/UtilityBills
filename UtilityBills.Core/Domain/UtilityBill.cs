@@ -10,40 +10,40 @@ public class UtilityBill
 {
     /// <summary>Ставка податку на додану вартість.</summary>
     private const decimal VatRate = 0.2m;
-    
+
     /// <summary>Поріг суми для базової субсидії.</summary>
     private const decimal SubsidyDiscountThreshold = 1000m;
-    
+
     /// <summary>Частка знижки за базовою субсидією.</summary>
     private const decimal SubsidyDiscountRate = 0.10m;
-    
+
     /// <summary>Поріг суми для підвищеної субсидії.</summary>
     private const decimal LargeConsumptionThreshold = 5000m;
-    
+
     /// <summary>Частка знижки за підвищеною субсидією.</summary>
     private const decimal LargeConsumptionDiscountRate = 0.15m;
-    
+
     /// <summary>Кількість послуг, з якої діє знижка за комплексність.</summary>
     private const int BulkLineCount = 10;
-    
+
     /// <summary>Сума знижки за комплексність, грн.</summary>
     private const decimal BulkDiscountAmount = 100m;
-    
+
     /// <summary>Максимальна кількість позицій у рахунку.</summary>
     private const int MaxLineCount = 100;
-    
+
     /// <summary>Мінімальна довжина імені абонента.</summary>
     private const int MinCustomerNameLength = 2;
 
     /// <summary>Стан: новий.</summary>
     private const int StatusNew = 0;
-    
+
     /// <summary>Стан: оплачений.</summary>
     private const int StatusPaid = 1;
-    
+
     /// <summary>Стан: відправлений.</summary>
     private const int StatusSent = 2;
-    
+
     /// <summary>Стан: скасований.</summary>
     private const int StatusCancelled = 3;
 
