@@ -14,7 +14,9 @@ public sealed class InMemoryUtilityBillRepository : IUtilityBillRepository
     {
         ArgumentNullException.ThrowIfNull(bill);
         if (!_bills.TryAdd(bill.Id, bill))
+        {
             throw new InvalidOperationException("Документ з таким Id вже існує");
+        }
     }
 
     public UtilityBill? GetById(int id) => _bills.GetValueOrDefault(id);

@@ -18,7 +18,10 @@ public sealed class DiscountPricingPolicy : IPricingPolicy
     public DiscountPricingPolicy(decimal discountRate)
     {
         if (discountRate is < 0m or > 0.5m)
+        {
             throw new ArgumentOutOfRangeException(nameof(discountRate), "Знижка має бути від 0 до 50%");
+        }
+
         _discountRate = discountRate;
     }
 

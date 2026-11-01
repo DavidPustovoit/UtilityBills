@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Var14.Core.Abstractions;
 using Var14.Core.Domain;
 using Var14.Core.Pricing;

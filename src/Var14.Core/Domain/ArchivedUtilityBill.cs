@@ -16,7 +16,7 @@ public sealed class ArchivedUtilityBill
     }
 
     public DateOnly ArchivedAt { get; }
-    
+
     // Показуємо тільки те, що безпечно для читання
     public int Id => _bill.Id;
     public UtilityBillStatus Status => _bill.Status;
