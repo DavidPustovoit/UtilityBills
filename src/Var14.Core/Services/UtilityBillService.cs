@@ -30,4 +30,51 @@ public sealed class UtilityBillService
         }
         return total;
     }
+	
+	// АНТИПАТЕРН 1: порожній catch, дефект зникає (проковтнутий виняток)
+    public UtilityBill? LoadBill(int billId)
+    {
+        try
+        {
+            return _repository.GetById(billId);
+        }
+        catch (Exception)
+        {
+        }
+        return null;
+    }
+
+    // АНТИПАТЕРНИ 2 і 3: широке перехоплення (catch Exception) і втрата стека (throw ex)
+    public void CancelBill(int billId)
+    {
+        try
+        {
+            var bill = _repository.GetById(billId);
+            // Наприклад тут якась логіка скасування, яка працює з БД
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Щось пішло не так");
+            throw ex;
+        }
+    }
+
+    // АНТИПАТЕРН 4: try/catch замість звичайної умови (винятки як керування потоком)
+    public int CountValidVolumes(string[] rows)
+    {
+        var valid = 0;
+        foreach (var row in rows)
+        {
+            try
+            {
+                var q = decimal.Parse(row);
+                if (q > 0) valid++;
+            }
+            catch (FormatException)
+            {
+                // не число — пропускаємо
+            }
+        }
+        return valid;
+    }
 }

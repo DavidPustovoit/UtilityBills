@@ -1,4 +1,5 @@
 using System;
+using Var14.App;
 using Var14.Core.Abstractions;
 using Var14.Core.Domain;
 using Var14.Core.Pricing;
@@ -13,9 +14,30 @@ var service = new UtilityBillService(repository, pricing);
 
 // Створюємо рахунок і додаємо позиції
 var bill = new UtilityBill(1, "SUB-777", DateOnly.FromDateTime(DateTime.Today));
-bill.AddLine(new BillLine("Електроенергія", 100, 4.32m)); // 100 кВт по 4.32 грн (432 грн)
+
+Console.WriteLine("Введіть дані послуги:");
+while (true)
+{
+    Console.Write("Назва послуги: ");
+    string? name = Console.ReadLine();
+
+    Console.Write("Об'єм (наприклад, 10,5): ");
+    string? volume = Console.ReadLine();
+
+    Console.Write("Тариф: ");
+    string? price = Console.ReadLine();
+
+    var parsed = BillLineParser.Parse(name ?? "", volume ?? "", price ?? "");
+
+    if (!parsed.IsSuccess)
+    {
+        Console.WriteLine($"\nПОМИЛКА ВВОДУ: {parsed.Error}. Спробуйте ще раз.\n");
+        continue;
+    }
+
+    bill.AddLine(parsed.Value!);
+    break;
+}
 
 service.RegisterBill(bill);
-
-// Має вивести суму зі знижкою 10% (432 - 43.2 = 388.80)
-Console.WriteLine($"Сума до сплати: {service.CalculateTotal(bill):0.00} грн");
+Console.WriteLine($"\nСума до сплати: {service.CalculateTotal(bill):0.00} грн");
