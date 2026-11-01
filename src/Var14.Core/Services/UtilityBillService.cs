@@ -30,49 +30,42 @@ public sealed class UtilityBillService
         }
         return total;
     }
-	
-	// АНТИПАТЕРН 1: порожній catch, дефект зникає (проковтнутий виняток)
+
+    // ВИПРАВЛЕНО 1: Оброблено змістовно, без порожнього catch
     public UtilityBill? LoadBill(int billId)
     {
-        try
+        var bill = _repository.GetById(billId);
+        if (bill == null)
         {
-            return _repository.GetById(billId);
+            // Тут міг би бути лог
         }
-        catch (Exception)
-        {
-        }
-        return null;
+        return bill;
     }
 
-    // АНТИПАТЕРНИ 2 і 3: широке перехоплення (catch Exception) і втрата стека (throw ex)
+    // ВИПРАВЛЕНО 2 і 3: Ловимо конкретний виняток і зберігаємо стек (throw)
     public void CancelBill(int billId)
     {
         try
         {
-            var bill = _repository.GetById(billId);
-            // Наприклад тут якась логіка скасування, яка працює з БД
+            var bill = _repository.GetById(billId)
+                ?? throw new Errors.DomainRuleException("bill.exists", "Рахунок не знайдено");
+            // Логіка скасування...
         }
-        catch (Exception ex)
+        catch (InvalidOperationException) // ловимо помилку, а не Exception
         {
-            Console.WriteLine("Щось пішло не так");
-            throw ex;
+            throw;
         }
     }
 
-    // АНТИПАТЕРН 4: try/catch замість звичайної умови (винятки як керування потоком)
-    public int CountValidVolumes(string[] rows)
+    // ВИПРАВЛЕНО 4: Використовуємо TryParse замість try-catch
+    public static int CountValidVolumes(string[] rows)
     {
         var valid = 0;
         foreach (var row in rows)
         {
-            try
+            if (decimal.TryParse(row, out var q) && q > 0)
             {
-                var q = decimal.Parse(row);
-                if (q > 0) valid++;
-            }
-            catch (FormatException)
-            {
-                // не число — пропускаємо
+                valid++;
             }
         }
         return valid;
