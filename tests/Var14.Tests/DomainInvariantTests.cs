@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.Logging.Abstractions;
 using Var14.Core.Domain;
 using Var14.Core.Pricing;
 using Var14.Core.Services;
@@ -39,7 +40,8 @@ public class DomainInvariantTests
         // Arrange
         var service = new UtilityBillService(
             new InMemoryUtilityBillRepository(),
-            new DiscountPricingPolicy(0.10m)); // Знижка 10%
+            new DiscountPricingPolicy(0.10m),
+            NullLogger<UtilityBillService>.Instance);
 
         var bill = new UtilityBill(2, "SUB-456", DateOnly.FromDateTime(DateTime.Today));
         bill.AddLine(new BillLine("Електроенергія", 200, 4m)); // 200 * 4 = 800 грн
@@ -48,7 +50,6 @@ public class DomainInvariantTests
         decimal total = service.CalculateTotal(bill);
 
         // Assert
-        // Очікуємо 800 - 10% = 720 грн
         Assert.Equal(720m, total);
     }
 }
