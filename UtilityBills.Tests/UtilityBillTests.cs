@@ -93,6 +93,8 @@ public class UtilityBillTests
     {
         var bill = new UtilityBill("8", "Ivan");
         Assert.True(bill.TryChangeStatus(1)); // 1 - Paid
-        Assert.Equal(1, bill.Status);
+
+        // Порівнюємо статус із конкретним значенням перелічення BillStatus.Paid
+        Assert.Equal(BillStatus.Paid, bill.Status);
     }
 }

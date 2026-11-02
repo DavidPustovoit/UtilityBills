@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UtilityBills.Core.Domain;
 
@@ -8,46 +9,17 @@ namespace UtilityBills.Core.Domain;
 /// </summary>
 public class UtilityBill
 {
-    /// <summary>Ставка податку на додану вартість.</summary>
     private const decimal VatRate = 0.2m;
-
-    /// <summary>Поріг суми для базової субсидії.</summary>
     private const decimal SubsidyDiscountThreshold = 1000m;
-
-    /// <summary>Частка знижки за базовою субсидією.</summary>
     private const decimal SubsidyDiscountRate = 0.10m;
-
-    /// <summary>Поріг суми для підвищеної субсидії.</summary>
     private const decimal LargeConsumptionThreshold = 5000m;
-
-    /// <summary>Частка знижки за підвищеною субсидією.</summary>
     private const decimal LargeConsumptionDiscountRate = 0.15m;
-
-    /// <summary>Кількість послуг, з якої діє знижка за комплексність.</summary>
     private const int BulkLineCount = 10;
-
-    /// <summary>Сума знижки за комплексність, грн.</summary>
     private const decimal BulkDiscountAmount = 100m;
-
-    /// <summary>Максимальна кількість позицій у рахунку.</summary>
     private const int MaxLineCount = 100;
-
-    /// <summary>Мінімальна довжина імені абонента.</summary>
     private const int MinCustomerNameLength = 2;
 
-    /// <summary>Стан: новий.</summary>
-    private const int StatusNew = 0;
-
-    /// <summary>Стан: оплачений.</summary>
-    private const int StatusPaid = 1;
-
-    /// <summary>Стан: відправлений.</summary>
-    private const int StatusSent = 2;
-
-    /// <summary>Стан: скасований.</summary>
-    private const int StatusCancelled = 3;
-
-    private readonly List<string[]> _lines = new List<string[]>();
+    private readonly List<LineItem> _lines = new();
 
     /// <summary>
     /// Ініціалізує новий екземпляр рахунку.
@@ -62,16 +34,19 @@ public class UtilityBill
     }
 
     /// <summary>Отримує ідентифікатор рахунку.</summary>
-    public string Id { get; private set; }
+    public string Id { get; }
 
     /// <summary>Отримує ім'я абонента.</summary>
-    public string CustomerName { get; private set; }
+    public string CustomerName { get; }
 
     /// <summary>Отримує поточний стан рахунку.</summary>
-    public int Status { get; private set; } = StatusNew;
+    public BillStatus Status { get; private set; } = BillStatus.New;
 
     /// <summary>Отримує дату створення рахунку.</summary>
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; }
+
+    /// <summary>Отримує список позицій у рахунку.</summary>
+    public IReadOnlyList<LineItem> Lines => _lines.AsReadOnly();
 
     /// <summary>
     /// Шукає рахунок за ідентифікатором у списку.
@@ -79,17 +54,9 @@ public class UtilityBill
     /// <param name="bills">Список рахунків.</param>
     /// <param name="id">Ідентифікатор для пошуку.</param>
     /// <returns>Знайдений рахунок або null, якщо не знайдено.</returns>
-    public static UtilityBill? FindById(List<UtilityBill> bills, string id)
+    public static UtilityBill? FindById(IEnumerable<UtilityBill> bills, string id)
     {
-        for (int i = 0; i < bills.Count; i++)
-        {
-            if (bills[i].Id == id)
-            {
-                return bills[i];
-            }
-        }
-
-        return null;
+        return bills.FirstOrDefault(b => b.Id == id);
     }
 
     /// <summary>
@@ -100,11 +67,7 @@ public class UtilityBill
     /// <param name="tariff">Тариф за одиницю.</param>
     public void AddLine(string serviceCode, int volume, decimal tariff)
     {
-        string[] line = new string[3];
-        line[0] = serviceCode;
-        line[1] = volume.ToString();
-        line[2] = tariff.ToString();
-        _lines.Add(line);
+        _lines.Add(new LineItem(serviceCode, volume, tariff));
     }
 
     /// <summary>
@@ -114,64 +77,38 @@ public class UtilityBill
     /// <returns>Загальна сума до сплати.</returns>
     public decimal CalculateTotal(bool hasSubsidy)
     {
-        decimal total = 0;
-        int lineCount = 0;
-
-        for (int i = 0; i < _lines.Count; i++)
-        {
-            int volume = int.Parse(_lines[i][1]);
-            decimal tariff = decimal.Parse(_lines[i][2]);
-            total = total + (volume * tariff);
-            lineCount = lineCount + 1;
-        }
-
-        if (hasSubsidy && total > SubsidyDiscountThreshold)
-        {
-            total = total * (1m - SubsidyDiscountRate);
-        }
-        else if (total > LargeConsumptionThreshold)
-        {
-            total = total * (1m - LargeConsumptionDiscountRate);
-        }
-
-        if (lineCount > BulkLineCount)
-        {
-            total = total - BulkDiscountAmount;
-        }
+        var total = CalculateSubtotal();
+        total = ApplySubsidies(total, hasSubsidy);
+        total = ApplyBulkDiscount(total);
 
         if (total < 0)
         {
             total = 0;
         }
 
-        // ПДВ нараховується на суму вже після всіх знижок
-        total = total + (total * VatRate);
-
-        return Math.Round(total, 2);
+        return Math.Round(total + (total * VatRate), 2);
     }
 
     /// <summary>
     /// Змінює стан рахунку, якщо перехід дозволений.
     /// </summary>
-    /// <param name="newStatus">Цільовий стан рахунку.</param>
+    /// <param name="newStatusInt">Цільовий стан рахунку.</param>
     /// <returns>true, якщо стан змінено; false, якщо перехід заборонений.</returns>
-    public bool TryChangeStatus(int newStatus)
+    public bool TryChangeStatus(int newStatusInt)
     {
-        if (Status == StatusNew && newStatus == StatusPaid)
+        if (!Enum.IsDefined(typeof(BillStatus), newStatusInt))
         {
-            Status = StatusPaid;
-            return true;
+            return false;
         }
 
-        if (Status == StatusPaid && newStatus == StatusSent)
-        {
-            Status = StatusSent;
-            return true;
-        }
+        var newStatus = (BillStatus)newStatusInt;
 
-        if (Status == StatusNew && newStatus == StatusCancelled)
+        bool isValidTransition = (Status == BillStatus.New && (newStatus == BillStatus.Paid || newStatus == BillStatus.Cancelled)) ||
+                                 (Status == BillStatus.Paid && newStatus == BillStatus.Sent);
+
+        if (isValidTransition)
         {
-            Status = StatusCancelled;
+            Status = newStatus;
             return true;
         }
 
@@ -184,37 +121,59 @@ public class UtilityBill
     /// <returns>true, якщо рахунок дійсний; інакше false.</returns>
     public bool IsValid()
     {
-        if (Id != null && Id != string.Empty
-            && CustomerName != null && CustomerName.Length > MinCustomerNameLength
-            && _lines.Count > 0 && _lines.Count < MaxLineCount
-            && Status >= StatusNew && Status <= StatusCancelled)
-        {
-            return true;
-        }
-        else
+        if (string.IsNullOrEmpty(Id))
         {
             return false;
         }
+
+        if (string.IsNullOrEmpty(CustomerName) || CustomerName.Length <= MinCustomerNameLength)
+        {
+            return false;
+        }
+
+        if (_lines.Count == 0 || _lines.Count >= MaxLineCount)
+        {
+            return false;
+        }
+
+        if (!Enum.IsDefined(typeof(BillStatus), Status))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>
     /// Формує текстовий звіт за рахунком.
     /// </summary>
     /// <returns>Рядок зі звітом.</returns>
-    public string BuildReport()
-    {
-        string report = string.Empty;
+    public string BuildReport() => BillReportBuilder.Build(this);
 
-        for (int i = 0; i < _lines.Count; i++)
+    private static decimal ApplySubsidies(decimal currentTotal, bool hasSubsidy)
+    {
+        if (hasSubsidy && currentTotal > SubsidyDiscountThreshold)
         {
-            report = report + "Послуга: " + _lines[i][0] +
-                     "; обсяг: " + _lines[i][1] +
-                     "; тариф: " + _lines[i][2] +
-                     "; сума: " + (int.Parse(_lines[i][1]) * decimal.Parse(_lines[i][2])) + "\n";
+            return currentTotal * (1m - SubsidyDiscountRate);
         }
 
-        report = report + "Разом: " + CalculateTotal(false) + "\n";
+        if (currentTotal > LargeConsumptionThreshold)
+        {
+            return currentTotal * (1m - LargeConsumptionDiscountRate);
+        }
 
-        return report;
+        return currentTotal;
+    }
+
+    private decimal CalculateSubtotal() => _lines.Sum(l => l.TotalAmount);
+
+    private decimal ApplyBulkDiscount(decimal currentTotal)
+    {
+        if (_lines.Count > BulkLineCount)
+        {
+            return currentTotal - BulkDiscountAmount;
+        }
+
+        return currentTotal;
     }
 }
