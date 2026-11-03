@@ -22,14 +22,7 @@ public static class BillCalculator
             total *= 0.93m;
         }
 
-        if (total > PremiumThreshold)
-        {
-            total *= PremiumDiscount;
-        }
-        else if (total > StandardThreshold)
-        {
-            total *= StandardDiscount;
-        }
+        total = ApplyVolumeDiscounts(total);
 
         if (couponCode == "SALE10")
         {
@@ -72,5 +65,18 @@ public static class BillCalculator
             sum += itemSum;
         }
         return sum;
+    }
+
+    private static decimal ApplyVolumeDiscounts(decimal currentTotal)
+    {
+        if (currentTotal > PremiumThreshold)
+        {
+            return currentTotal * PremiumDiscount;
+        }
+        if (currentTotal > StandardThreshold)
+        {
+            return currentTotal * StandardDiscount;
+        }
+        return currentTotal;
     }
 }
