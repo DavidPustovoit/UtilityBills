@@ -1,0 +1,7 @@
+Клас;Метод;LOC;CC;Вкл.;Пар.;Fan-out
+LegacyProcessor;Process;89;24;3;11;3
+BillValidator;Validate;13;14;2;5;2
+BillCalculator;Calculate;45;12;3;5;2
+BillStatusManager;Update;13;5;2;3;0
+UtilityBillService;CalculateTotal;13;3;2;1;2
+BillPrinter;Print;11;2;2;6;2
