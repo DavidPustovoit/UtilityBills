@@ -23,10 +23,7 @@ public static class BillCalculator
 
         total = ApplyCoupons(total, couponCode);
 
-        if (createdAt.DayOfWeek == DayOfWeek.Sunday)
-        {
-            total *= 0.98m;
-        }
+        total = ApplyWeekendDiscount(total, createdAt);
 
         if (total < 1000)
         {
@@ -89,5 +86,11 @@ public static class BillCalculator
         }
 
         return total;
+    }
+
+    private static decimal ApplyWeekendDiscount(decimal total, DateOnly createdAt)
+    {
+        bool isSunday = createdAt.DayOfWeek == DayOfWeek.Sunday;
+        return isSunday ? total * 0.98m : total;
     }
 }
