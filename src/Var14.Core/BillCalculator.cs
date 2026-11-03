@@ -8,6 +8,7 @@ public static class BillCalculator
 {
     public static decimal Calculate(List<Indicator> indicators, bool isRegular, string couponCode, DateOnly createdAt, decimal serviceFee)
     {
+        ArgumentNullException.ThrowIfNull(indicators);
         decimal total = 0;
         foreach (var ind in indicators)
         {
