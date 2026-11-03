@@ -15,10 +15,10 @@ public static class BillCalculator
     {
         ArgumentNullException.ThrowIfNull(indicators);
         decimal total = 0;
-        foreach (var ind in indicators)
+        foreach (var indicator in indicators)
         {
-            decimal sum = ind.Volume * ind.Tariff;
-            if (ind.Volume >= 10)
+            decimal sum = indicator.Volume * indicator.Tariff;
+            if (indicator.Volume >= 10)
             {
                 sum *= 0.95m;
             }
