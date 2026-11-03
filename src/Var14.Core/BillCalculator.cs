@@ -21,18 +21,7 @@ public static class BillCalculator
 
         total = ApplyVolumeDiscounts(total);
 
-        if (couponCode == "SALE10")
-        {
-            total -= total * 0.1m;
-        }
-        else
-        {
-            bool isMinus200Eligible = couponCode == "MINUS200" && total > 1000m;
-            if (isMinus200Eligible)
-            {
-                total -= 200m;
-            }
-        }
+        total = ApplyCoupons(total, couponCode);
 
         if (createdAt.DayOfWeek == DayOfWeek.Sunday)
         {
@@ -84,5 +73,21 @@ public static class BillCalculator
     private static decimal ApplyRegularClientDiscount(decimal total, bool isRegular)
     {
         return isRegular ? total * 0.93m : total;
+    }
+
+    private static decimal ApplyCoupons(decimal total, string couponCode)
+    {
+        if (couponCode == "SALE10")
+        {
+            return total - (total * 0.1m);
+        }
+
+        bool isMinus200Eligible = couponCode == "MINUS200" && total > 1000m;
+        if (isMinus200Eligible)
+        {
+            return total - 200m;
+        }
+
+        return total;
     }
 }
