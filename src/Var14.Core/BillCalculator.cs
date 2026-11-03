@@ -25,10 +25,7 @@ public static class BillCalculator
 
         total = ApplyWeekendDiscount(total, createdAt);
 
-        if (total < 1000)
-        {
-            total += serviceFee;
-        }
+        total = ApplyServiceFee(total, serviceFee);
 
         if (total < 0)
         {
@@ -92,5 +89,10 @@ public static class BillCalculator
     {
         bool isSunday = createdAt.DayOfWeek == DayOfWeek.Sunday;
         return isSunday ? total * 0.98m : total;
+    }
+
+    private static decimal ApplyServiceFee(decimal total, decimal serviceFee)
+    {
+        return total < 1000m ? total + serviceFee : total;
     }
 }
