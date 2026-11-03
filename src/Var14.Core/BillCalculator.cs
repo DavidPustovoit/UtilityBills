@@ -6,6 +6,11 @@ namespace Var14.Core;
 
 public static class BillCalculator
 {
+    private const decimal PremiumThreshold = 5000m;
+    private const decimal PremiumDiscount = 0.9m;
+    private const decimal StandardThreshold = 2000m;
+    private const decimal StandardDiscount = 0.95m;
+
     public static decimal Calculate(List<Indicator> indicators, bool isRegular, string couponCode, DateOnly createdAt, decimal serviceFee)
     {
         ArgumentNullException.ThrowIfNull(indicators);
@@ -26,13 +31,13 @@ public static class BillCalculator
             total *= 0.93m;
         }
 
-        if (total > 5000)
+        if (total > PremiumThreshold)
         {
-            total *= 0.9m;
+            total *= PremiumDiscount;
         }
-        else if (total > 2000)
+        else if (total > StandardThreshold)
         {
-            total *= 0.95m;
+            total *= StandardDiscount;
         }
 
         if (couponCode == "SALE10")
