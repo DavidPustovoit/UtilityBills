@@ -17,10 +17,7 @@ public static class BillCalculator
 
         decimal total = CalculateBaseSum(indicators);
 
-        if (isRegular)
-        {
-            total *= 0.93m;
-        }
+        total = ApplyRegularClientDiscount(total, isRegular);
 
         total = ApplyVolumeDiscounts(total);
 
@@ -78,5 +75,10 @@ public static class BillCalculator
             return currentTotal * StandardDiscount;
         }
         return currentTotal;
+    }
+
+    private static decimal ApplyRegularClientDiscount(decimal total, bool isRegular)
+    {
+        return isRegular ? total * 0.93m : total;
     }
 }
