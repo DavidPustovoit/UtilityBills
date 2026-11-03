@@ -10,6 +10,10 @@ public static class BillCalculator
     private const decimal PremiumDiscount = 0.9m;
     private const decimal StandardThreshold = 2000m;
     private const decimal StandardDiscount = 0.95m;
+    private const decimal RegularClientDiscount = 0.93m;
+    private const decimal WeekendDiscount = 0.98m;
+    private const int MinVolumeForDiscount = 10;
+    private const decimal VolumeDiscount = 0.95m;
 
     public static decimal Calculate(List<Indicator> indicators, bool isRegular, string couponCode, DateOnly createdAt, decimal serviceFee)
     {
@@ -36,9 +40,9 @@ public static class BillCalculator
         foreach (var indicator in indicators)
         {
             decimal itemSum = indicator.Volume * indicator.Tariff;
-            if (indicator.Volume >= 10)
+            if (indicator.Volume >= MinVolumeForDiscount)
             {
-                itemSum *= 0.95m;
+                itemSum *= VolumeDiscount;
             }
 
             sum += itemSum;
@@ -61,7 +65,7 @@ public static class BillCalculator
 
     private static decimal ApplyRegularClientDiscount(decimal total, bool isRegular)
     {
-        return isRegular ? total * 0.93m : total;
+        return isRegular ? total * RegularClientDiscount : total;
     }
 
     private static decimal ApplyCoupons(decimal total, string couponCode)
@@ -83,7 +87,7 @@ public static class BillCalculator
     private static decimal ApplyWeekendDiscount(decimal total, DateOnly createdAt)
     {
         bool isSunday = createdAt.DayOfWeek == DayOfWeek.Sunday;
-        return isSunday ? total * 0.98m : total;
+        return isSunday ? total * WeekendDiscount : total;
     }
 
     private static decimal ApplyServiceFee(decimal total, decimal serviceFee)
