@@ -27,12 +27,7 @@ public static class BillCalculator
 
         total = ApplyServiceFee(total, serviceFee);
 
-        if (total < 0)
-        {
-            total = 0;
-        }
-
-        return Math.Round(total, 2);
+        return total < 0 ? 0 : Math.Round(total, 2);
     }
 
     private static decimal CalculateBaseSum(List<Indicator> indicators)
