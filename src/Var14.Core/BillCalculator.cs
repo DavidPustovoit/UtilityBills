@@ -25,9 +25,13 @@ public static class BillCalculator
         {
             total -= total * 0.1m;
         }
-        else if (couponCode == "MINUS200" && total > 1000)
+        else
         {
-            total -= 200m;
+            bool isMinus200Eligible = couponCode == "MINUS200" && total > 1000m;
+            if (isMinus200Eligible)
+            {
+                total -= 200m;
+            }
         }
 
         if (createdAt.DayOfWeek == DayOfWeek.Sunday)
