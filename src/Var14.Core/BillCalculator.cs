@@ -14,17 +14,8 @@ public static class BillCalculator
     public static decimal Calculate(List<Indicator> indicators, bool isRegular, string couponCode, DateOnly createdAt, decimal serviceFee)
     {
         ArgumentNullException.ThrowIfNull(indicators);
-        decimal total = 0;
-        foreach (var indicator in indicators)
-        {
-            decimal sum = indicator.Volume * indicator.Tariff;
-            if (indicator.Volume >= 10)
-            {
-                sum *= 0.95m;
-            }
 
-            total += sum;
-        }
+        decimal total = CalculateBaseSum(indicators);
 
         if (isRegular)
         {
@@ -65,5 +56,21 @@ public static class BillCalculator
         }
 
         return Math.Round(total, 2);
+    }
+
+    private static decimal CalculateBaseSum(List<Indicator> indicators)
+    {
+        decimal sum = 0;
+        foreach (var indicator in indicators)
+        {
+            decimal itemSum = indicator.Volume * indicator.Tariff;
+            if (indicator.Volume >= 10)
+            {
+                itemSum *= 0.95m;
+            }
+
+            sum += itemSum;
+        }
+        return sum;
     }
 }
