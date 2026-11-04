@@ -484,3 +484,9 @@ $RECYCLE.BIN/
 # власні винятки проєкту
 *.user
 data/*.local.json
+
+# результати тестів і покриття
+TestResults/
+coverage/
+*.coverage
+*.cobertura.xml
