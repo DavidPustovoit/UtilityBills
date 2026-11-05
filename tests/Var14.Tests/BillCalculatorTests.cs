@@ -21,6 +21,7 @@ public class BillCalculatorTests
     [InlineData(1, 1500.0, "SALE10", 1350.0)]   // купон −10%
     [InlineData(1, 1500.0, "MINUS200", 1300.0)] // купон −200 при сумі > 1000
     [InlineData(1, 500.0, "MINUS200", 500.0)]   // купон не діє при сумі < 1000
+    [InlineData(1, 100.001, "", 100.01)]
     public void Calculate_Boundaries_ReturnsExpectedTotal(
         int volume, double tariff, string coupon, double expected)
     {

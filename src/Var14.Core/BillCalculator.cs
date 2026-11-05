@@ -15,6 +15,11 @@ public static class BillCalculator
     private const int MinVolumeForDiscount = 10;
     private const decimal VolumeDiscount = 0.95m;
 
+    /// <summary>
+    /// Округлює суму вгору до копійки (0.01 грн) відповідно до вимоги варіанта 14.
+    /// </summary>
+    private static decimal RoundUpToKopecks(decimal total) => Math.Ceiling(total * 100m) / 100m;
+
     public static decimal Calculate(List<Indicator> indicators, bool isRegular, string couponCode, DateOnly createdAt, decimal serviceFee)
     {
         ArgumentNullException.ThrowIfNull(indicators);
@@ -31,7 +36,7 @@ public static class BillCalculator
 
         total = ApplyServiceFee(total, serviceFee);
 
-        return total < 0 ? 0 : Math.Ceiling(total * 100m) / 100m;
+        return total < 0 ? 0 : RoundUpToKopecks(total);
     }
 
     private static decimal CalculateBaseSum(List<Indicator> indicators)
