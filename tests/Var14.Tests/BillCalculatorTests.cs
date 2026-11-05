@@ -100,4 +100,17 @@ public class BillCalculatorTests
             () => BillCalculator.Calculate(indicators!, false, "", Monday, 0m));
         Assert.Equal("indicators", ex.ParamName);
     }
+
+    [Fact]
+    public void Calculate_FractionalTotal_RoundsUpToTwoDecimals()
+    {
+        // Arrange
+        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 100.001m } };
+
+        // Act
+        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
+
+        // Assert
+        Assert.Equal(100.01m, actual);
+    }
 }
