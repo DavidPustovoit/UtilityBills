@@ -11,121 +11,30 @@ public class BillCalculatorTests
     private static readonly DateOnly Monday = new(2023, 10, 2);
     private static readonly DateOnly Sunday = new(2023, 10, 1);
 
-    [Fact]
-    public void Calculate_VolumeBelowTen_NoVolumeDiscount()
+    [Theory]
+    [InlineData(9, 100.0, "", 900.0)]           // обсяг < 10 — без знижки
+    [InlineData(10, 100.0, "", 950.0)]          // обсяг = 10 — знижка 5%
+    [InlineData(1, 2000.0, "", 2000.0)]         // сума = 2000 — без порогової
+    [InlineData(1, 2001.0, "", 1900.95)]        // сума > 2000 — 5%
+    [InlineData(1, 5000.0, "", 4750.0)]         // сума = 5000 — 5% (не 10%)
+    [InlineData(1, 5001.0, "", 4500.90)]        // сума > 5000 — 10%
+    [InlineData(1, 1500.0, "SALE10", 1350.0)]   // купон −10%
+    [InlineData(1, 1500.0, "MINUS200", 1300.0)] // купон −200 при сумі > 1000
+    [InlineData(1, 500.0, "MINUS200", 500.0)]   // купон не діє при сумі < 1000
+    public void Calculate_Boundaries_ReturnsExpectedTotal(
+        int volume, double tariff, string coupon, double expected)
     {
         // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 9, Tariff = 100m } };
+        var indicators = new List<Indicator>
+        {
+            new() { Volume = volume, Tariff = (decimal)tariff }
+        };
 
         // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
+        decimal actual = BillCalculator.Calculate(indicators, false, coupon, Monday, 0m);
 
         // Assert
-        Assert.Equal(900m, actual);
-    }
-
-    [Fact]
-    public void Calculate_VolumeAtTen_AppliesVolumeDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 10, Tariff = 100m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
-
-        // Assert
-        Assert.Equal(950m, actual);
-    }
-
-    [Fact]
-    public void Calculate_TotalAtStandardThreshold_NoThresholdDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 2000m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
-
-        // Assert
-        Assert.Equal(2000m, actual);
-    }
-
-    [Fact]
-    public void Calculate_TotalJustAboveStandard_AppliesStandardDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 2001m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
-
-        // Assert
-        Assert.Equal(1900.95m, actual);
-    }
-
-    [Fact]
-    public void Calculate_TotalAtPremiumThreshold_AppliesStandardDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 5000m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
-
-        // Assert
-        Assert.Equal(4750m, actual);
-    }
-
-    [Fact]
-    public void Calculate_TotalJustAbovePremium_AppliesPremiumDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 5001m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "", Monday, 0m);
-
-        // Assert
-        Assert.Equal(4500.90m, actual);
-    }
-
-    [Fact]
-    public void Calculate_CouponSale10_AppliesTenPercentDiscount()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 1500m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "SALE10", Monday, 0m);
-
-        // Assert
-        Assert.Equal(1350m, actual);
-    }
-
-    [Fact]
-    public void Calculate_CouponMinus200AboveThreshold_Subtracts200()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 1500m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "MINUS200", Monday, 0m);
-
-        // Assert
-        Assert.Equal(1300m, actual);
-    }
-
-    [Fact]
-    public void Calculate_CouponMinus200BelowThreshold_DoesNothing()
-    {
-        // Arrange
-        var indicators = new List<Indicator> { new() { Volume = 1, Tariff = 500m } };
-
-        // Act
-        decimal actual = BillCalculator.Calculate(indicators, false, "MINUS200", Monday, 0m);
-
-        // Assert
-        Assert.Equal(500m, actual);
+        Assert.Equal((decimal)expected, actual);
     }
 
     [Fact]
@@ -178,5 +87,17 @@ public class BillCalculatorTests
 
         // Assert
         Assert.Equal(0m, actual);
+    }
+
+    [Fact]
+    public void Calculate_NullIndicators_ThrowsArgumentNullException()
+    {
+        // Arrange
+        List<Indicator>? indicators = null;
+
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentNullException>(
+            () => BillCalculator.Calculate(indicators!, false, "", Monday, 0m));
+        Assert.Equal("indicators", ex.ParamName);
     }
 }
