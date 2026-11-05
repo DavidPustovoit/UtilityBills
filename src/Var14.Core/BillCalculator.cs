@@ -31,7 +31,7 @@ public static class BillCalculator
 
         total = ApplyServiceFee(total, serviceFee);
 
-        return total < 0 ? 0 : Math.Round(total, 2);
+        return total < 0 ? 0 : Math.Ceiling(total * 100m) / 100m;
     }
 
     private static decimal CalculateBaseSum(List<Indicator> indicators)
