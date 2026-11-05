@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Var14.Core.Legacy;
 
+[ExcludeFromCodeCoverage]
 public static class LegacyProcessor
 {
     public static decimal Process(

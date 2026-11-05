@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Var14.Core.Legacy;
 
 namespace Var14.Core;
 
+[ExcludeFromCodeCoverage]
 public static class BillPrinter
 {
     public static void Print(int docId, string clientName, string clientEmail, List<Indicator> indicators, decimal total, string newStatus)

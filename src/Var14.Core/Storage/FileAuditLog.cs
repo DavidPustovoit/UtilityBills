@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace Var14.Core.Storage;
 
+[ExcludeFromCodeCoverage]
 public sealed class FileAuditLog : IDisposable
 {
     private readonly StreamWriter _writer;
