@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Var14.Core;
 using Var14.App;
+using Var14.Core;
 using Var14.Core.Abstractions;
 using Var14.Core.Domain;
 using Var14.Core.Pricing;
