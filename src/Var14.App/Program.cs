@@ -1,11 +1,14 @@
 using System;
 using Microsoft.Extensions.Logging;
+using Var14.Core;
 using Var14.App;
 using Var14.Core.Abstractions;
 using Var14.Core.Domain;
 using Var14.Core.Pricing;
 using Var14.Core.Services;
 using Var14.Core.Storage;
+
+Console.WriteLine($"Var14 v{VersionInfo.Current()}");
 
 using var factory = LoggerFactory.Create(builder =>
 {
