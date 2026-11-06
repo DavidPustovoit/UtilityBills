@@ -17,11 +17,24 @@ csharp_indent_case_contents = true
 dotnet_sort_system_directives_first = true
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_var_for_built_in_types = false:suggestion
+
+# Правило 1 (вищий пріоритет): static і const поля — PascalCase без префікса.
+# Це відповідає .NET convention і CODING_STANDARD.md розділу 2.
+dotnet_naming_rule.static_field_pascal.symbols = static_field
+dotnet_naming_rule.static_field_pascal.style = pascal_style
+dotnet_naming_rule.static_field_pascal.severity = warning
+dotnet_naming_symbols.static_field.applicable_kinds = field
+dotnet_naming_symbols.static_field.applicable_accessibilities = *
+dotnet_naming_symbols.static_field.required_modifiers = static
+dotnet_naming_style.pascal_style.capitalization = pascal_case
+
+# Правило 2 (нижчий пріоритет): приватні instance-поля — _camelCase.
 dotnet_naming_rule.priv_underscore.symbols = priv_field
 dotnet_naming_rule.priv_underscore.style = underscore_camel
 dotnet_naming_rule.priv_underscore.severity = warning
 dotnet_naming_symbols.priv_field.applicable_kinds = field
 dotnet_naming_symbols.priv_field.applicable_accessibilities = private
+dotnet_naming_symbols.priv_field.required_modifiers = instance
 dotnet_naming_style.underscore_camel.capitalization = camel_case
 dotnet_naming_style.underscore_camel.required_prefix = _
 
@@ -53,7 +66,8 @@ dotnet_diagnostic.IDE0055.severity = warning
 # Документація українською мовою, а не англійською
 dotnet_diagnostic.SA1623.severity = none
 dotnet_diagnostic.SA1642.severity = none
-# Проблема культури в Parse/ToString йде в технічний борг
-dotnet_diagnostic.CA1305.severity = none
+# CA1305: парсинг чисел без явної культури залежить від локалі користувача.
+# Увімкнено як warning, щоб аналізатор знаходив такі місця.
+dotnet_diagnostic.CA1305.severity = warning
 # Лабораторна 7: імена тестів за схемою Метод_Ситуація_ОчікуванийРезультат
 dotnet_diagnostic.CA1707.severity = none
