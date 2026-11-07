@@ -490,3 +490,8 @@ TestResults/
 coverage/
 *.coverage
 *.cobertura.xml
+
+# Локальні налаштування й секрети
+appsettings.Local.json
+**/*.secrets.json
+.env

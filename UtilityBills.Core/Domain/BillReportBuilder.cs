@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace UtilityBills.Core.Domain;
@@ -17,10 +18,11 @@ public static class BillReportBuilder
         var sb = new StringBuilder();
         foreach (var line in bill.Lines)
         {
-            sb.Append($"Послуга: {line.ServiceCode}; обсяг: {line.Volume}; тариф: {line.Tariff}; сума: {line.TotalAmount}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"Послуга: {line.ServiceCode}; обсяг: {line.Volume}; тариф: {line.Tariff}; сума: {line.TotalAmount}\n");
         }
 
-        sb.Append($"Разом: {bill.CalculateTotal(false)}\n");
+        // hasSubsidy: false — розрахунок без субсидії.
+        sb.Append(CultureInfo.InvariantCulture, $"Разом: {bill.CalculateTotal(false)}\n");
 
         return sb.ToString();
     }

@@ -83,7 +83,7 @@ public class UtilityBillTests
 
         var expected = "Послуга: WATER; обсяг: 3; тариф: 250; сума: 750\n" +
                        "Послуга: ELEC; обсяг: 12; тариф: 90; сума: 1080\n" +
-                       "Разом: 2196,0\n";
+                       "Разом: 2196.0\n";
 
         Assert.Equal(expected, actual);
     }
