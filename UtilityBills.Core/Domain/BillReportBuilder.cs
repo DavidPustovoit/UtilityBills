@@ -21,6 +21,7 @@ public static class BillReportBuilder
             sb.Append(CultureInfo.InvariantCulture, $"Послуга: {line.ServiceCode}; обсяг: {line.Volume}; тариф: {line.Tariff}; сума: {line.TotalAmount}\n");
         }
 
+        // hasSubsidy: false — розрахунок без субсидії.
         sb.Append(CultureInfo.InvariantCulture, $"Разом: {bill.CalculateTotal(false)}\n");
 
         return sb.ToString();
