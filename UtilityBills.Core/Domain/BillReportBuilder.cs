@@ -18,10 +18,10 @@ public static class BillReportBuilder
         var sb = new StringBuilder();
         foreach (var line in bill.Lines)
         {
-            sb.Append(CultureInfo.CurrentCulture, $"Послуга: {line.ServiceCode}; обсяг: {line.Volume}; тариф: {line.Tariff}; сума: {line.TotalAmount}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"Послуга: {line.ServiceCode}; обсяг: {line.Volume}; тариф: {line.Tariff}; сума: {line.TotalAmount}\n");
         }
 
-        sb.Append(CultureInfo.CurrentCulture, $"Разом: {bill.CalculateTotal(false)}\n");
+        sb.Append(CultureInfo.InvariantCulture, $"Разом: {bill.CalculateTotal(false)}\n");
 
         return sb.ToString();
     }
