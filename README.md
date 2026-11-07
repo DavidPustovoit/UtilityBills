@@ -23,5 +23,19 @@ dotnet run --project UtilityBills.App
 
 Перевірка: dotnet format --verify-no-changes
 
+
+## Безперервна інтеграція
+
+Конвеєр `.github/workflows/ci.yml` запускається на кожен push у `main` і `feature/**` та на кожен pull request у `main`. Кроки йдуть від найдешевшого до найдорожчого: помилка форматування зупиняє конвеєр раніше, ніж почнеться компіляція.
+
+| Крок | Команда | Критерій якості |
+|------|---------|-----------------|
+| Формат | `dotnet format --verify-no-changes` | жодних змін |
+| Складання | `dotnet build -c Release` | 0 попереджень і помилок |
+| Тести | `dotnet test -c Release` | 100 % зелених |
+| Покриття | `/p:Threshold=60` | не менше 60 % рядків |
+
+Перевірити локально перед push: `dotnet format --verify-no-changes && dotnet build -c Release && dotnet test -c Release`.
+
 ## Автор
 Пустовойт Давид Олександрович, група 472
