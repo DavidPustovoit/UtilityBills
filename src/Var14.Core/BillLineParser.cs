@@ -49,9 +49,10 @@ public static class BillLineParser
 
         if (!decimal.TryParse(volumeStr, styles, culture, out var volume) || volume <= 0)
         {
-            return Result<BillLine>.Fail("Об'єм — це число більше 0");
+            return Result<BillLine>.Fail($"Об'єм — це число більше 0, отримано: '{volumeStr}'");
         }
 
+        // TryParse і перевірка верхньої межі — одна логічна група: валідація обсягу.
         if (volume > MaxVolume)
         {
             return Result<BillLine>.Fail($"Об'єм не може перевищувати {MaxVolume}");
